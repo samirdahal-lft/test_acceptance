@@ -1,7 +1,7 @@
 ---
 approved_by: "samir dahal"
 approved_at: "2026-10-01"
-planned_behaviors: "3"
+planned_behaviors: "1"
 approved_sha256: "ff882996ec12d13427ed1fdc2d413d4c7fe083ca1b64c941d821c5f9ad98090f"
 ---
 ## Exec Plan — Task T-streamlit-greeter-4mm918
