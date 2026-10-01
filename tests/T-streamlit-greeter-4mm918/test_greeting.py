@@ -18,6 +18,10 @@ def test_greeting_whitespace_name_returns_none():
     assert greeting("   ") is None
 
 
+def test_greeting_trims_surrounding_whitespace():
+    assert greeting("  Alice  ") == "Good day, Alice"
+
+
 def test_app_shows_greeting_when_name_entered():
     at = AppTest.from_file(_APP_PATH).run()
     at.text_input[0].set_value("Alice").run()
