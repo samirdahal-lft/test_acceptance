@@ -1,26 +1,36 @@
 ---
-approved_by: ""
-approved_at: ""
-# planned_behaviors — machine-read count of RED→GREEN cycles (B-N). Leave empty to let
-# lane infer from B-N labels below; SET it when an AC becomes a regression guard so
-# `lane next` knows the remaining count (frontmatter edits need no re-approval).
-planned_behaviors: ""
+approved_by: "samir dahal"
+approved_at: "2026-10-01"
+planned_behaviors: "3"
+approved_sha256: "ff882996ec12d13427ed1fdc2d413d4c7fe083ca1b64c941d821c5f9ad98090f"
 ---
 ## Exec Plan — Task T-streamlit-greeter-4mm918
-> Authored during planning, before any code. ★GATE where this kind signs the plan — run `lane` and read the step: at `approve-plan` a DEV/SA approves via `lane approve` BEFORE any code (lane writes the stamp). When `lane` says there is no plan gate on this kind, this document is drafted and never signed, and the approved spec is what bounds it. Resolve all ambiguities first either way.
 
-**Will build:** (mapped to each AC)
--
-**Approach:** high-level only — NOT implementation prescription
-**Boundaries & mocks:** (from the approved spec's Boundaries section) what's FAKED (network/external services, clock, randomness, filesystem) vs REAL. Each fake = an injected port. Boundaries non-empty ⇒ name the smoke AC that hits the real one in a realistic environment.
--
-**Behaviors (TDD order):** B-1 first (tracer bullet), then B-2, B-3 … ; include the `e2e` behavior
--
+**Will build:**
+- B-1: `greeting(name)` pure function returns "Good day, <name>" for non-empty name (AC-1)
+- B-2: `greeting(name)` returns `None` (or empty string) for empty/whitespace-only name (AC-2)
+- B-3: `app.py` Streamlit page — text input renders greeting via `greeting()` when name is non-empty (AC-3, e2e)
+
+**Approach:**
+- Extract a pure `greeting(name: str) -> str | None` function so unit tests can exercise it without Streamlit
+- `app.py` calls `greeting()` and conditionally calls `st.write()` on the result
+- Tests for B-1 and B-2 are plain pytest unit tests against `greeting()`; B-3 is a smoke integration test using `streamlit.testing.v1.AppTest`
+
+**Boundaries & mocks:**
+- No external boundaries (no network, no DB, no filesystem I/O at runtime)
+- No fakes required; all tests are pure Python unit/integration tests
+
+**Behaviors (TDD order):**
+- B-1 (tracer bullet): `greeting("Alice")` → `"Good day, Alice"` — proves the happy path
+- B-2: `greeting("")` → no greeting; `greeting("   ")` → no greeting — proves the empty/whitespace guard
+- B-3: Streamlit app renders "Good day, Alice" when name input is "Alice"; renders nothing when input is empty
+
 **PR will contain:**
--
-**Open questions / ambiguities:** (MUST be resolved before execution)
--
-**Path:** L (lean, default) | R (rich)
-**Escalation signals hit (≥2 → R):** ambiguities≥3 · blast-radius≥3 · security · amendments≥2 · prior-fail · self-flag
-**If overriding R→L:** risk acknowledged here + SA co-signs Verification.
+- `app.py` — Streamlit single-page app with `greeting()` helper and conditional `st.write()`
+- `tests/T-streamlit-greeter-4mm918/test_greeting.py` — unit + AppTest smoke tests
+
+**Open questions / ambiguities:** None — scope is fully defined by the TSD snapshot.
+
+**Path:** L (lean)
+**Escalation signals hit:** 0
 - [ ] Refactor pass done (on green; tests unchanged) — before PR
